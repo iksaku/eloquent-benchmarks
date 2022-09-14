@@ -11,8 +11,6 @@ trait CalculatesQueryPerformance
 {
     protected int $benchmarksRun = 0;
 
-    public abstract static function benchmarkName(): string;
-
     protected function benchmark(string $title, array $callbacks): void
     {
         if (++$this->benchmarksRun > 1) {

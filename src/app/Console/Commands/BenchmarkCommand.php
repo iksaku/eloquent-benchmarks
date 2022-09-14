@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\Benchmark\Concerns\CalculatesQueryPerformance;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class BenchmarkCommand extends Command
 {
@@ -29,8 +30,12 @@ class BenchmarkCommand extends Command
                 $this->newLine();
             }
 
-            /** @var CalculatesQueryPerformance $command */
-            $this->info("[Benchmark] {$command::benchmarkName()}\n");
+            $name = Str::of($command::class)
+                ->classBasename()
+                ->replace('Command', '')
+                ->headline();
+
+            $this->info("[Benchmark] {$name}\n");
 
             Artisan::call($signature, outputBuffer: $outputBuffer);
         }

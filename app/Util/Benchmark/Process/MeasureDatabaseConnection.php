@@ -3,7 +3,8 @@
 namespace App\Util\Benchmark\Process;
 
 use App\Util\Benchmark\BenchmarkResult;
-use App\Util\Benchmark\BenchmarkValue;
+use App\Util\Benchmark\Measurement;
+use App\Util\Benchmark\MeasurementUnit;
 use Closure;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
@@ -20,8 +21,8 @@ class MeasureDatabaseConnection
         });
 
         return tap($next($callback), function (BenchmarkResult $result) use ($queryTime) {
-            $result->queryCount = new BenchmarkValue(count($queryTime));
-            $result->databaseTime = new BenchmarkValue(array_sum($queryTime), 'ms');
+            $result->queryCount = new Measurement(count($queryTime));
+            $result->databaseTime = new Measurement(array_sum($queryTime), unit: MeasurementUnit::Milliseconds);
 
             Event::forget(QueryExecuted::class);
         });

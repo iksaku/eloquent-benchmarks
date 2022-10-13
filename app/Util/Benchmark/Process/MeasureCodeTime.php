@@ -3,7 +3,8 @@
 namespace App\Util\Benchmark\Process;
 
 use App\Util\Benchmark\BenchmarkResult;
-use App\Util\Benchmark\BenchmarkValue;
+use App\Util\Benchmark\Measurement;
+use App\Util\Benchmark\MeasurementUnit;
 use Closure;
 
 class MeasureCodeTime
@@ -17,7 +18,7 @@ class MeasureCodeTime
 
             $end = microtime(true);
 
-            $result->codeTime = new BenchmarkValue(round(($end - $start) * 1000, 2), 'ms');
+            $result->codeTime = new Measurement($end - $start, unit: MeasurementUnit::Seconds);
         });
     }
 }

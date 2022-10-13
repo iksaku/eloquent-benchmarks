@@ -9,9 +9,9 @@ use Illuminate\Support\Collection;
 class Benchmark
 {
     /**
-     * @var Collection<int|string, PendingBenchmark>
+     * @var Collection<int|string, BenchmarkResult>
      */
-    protected Collection $pendingBenchmarks;
+    protected Collection $benchmarks;
 
     protected function __construct(public string $title, protected Command $command)
     {
@@ -27,33 +27,11 @@ class Benchmark
      */
     public function measure(array $callbacks): static
     {
-        $this->pendingBenchmarks = Collection::make($callbacks)
-            ->mapInto(PendingBenchmark::class);
+        $this->benchmarks = Collection::make($callbacks)
+            ->map(BenchmarkResult::make(...))
+            ->tap(BenchmarkResult::highlightBestMeasurements(...));
 
         return $this;
-    }
-
-    /**
-     * @return Collection<int|string, BenchmarkResult>
-     */
-    protected function evaluate(): Collection
-    {
-        return $this->pendingBenchmarks
-            ->mapWithKeys(
-                fn(PendingBenchmark $pendingBenchmark) => $pendingBenchmark->evaluate()
-            )
-            ->tap(function (Collection $results) {
-                foreach (['codeTime', 'databaseTime', 'queryCount'] as $category) {
-                    $results
-                        ->reduce(
-                            fn (?BenchmarkValue $min, BenchmarkResult $current): BenchmarkValue =>
-                                is_null($min) || $current->{$category}->value < $min->value
-                                    ? $current->{$category}
-                                    : $min
-                        )
-                        ->markAsBestValue();
-                }
-            });
     }
 
     public function render(): void
@@ -67,14 +45,13 @@ class Benchmark
                 'Database Time',
                 'Code Time',
             ],
-            rows: $this->evaluate()
+            rows: $this->benchmarks
                 ->map(fn (BenchmarkResult $result, int|string $name) => [
                     $name,
                     $result->queryCount,
                     $result->databaseTime,
                     $result->codeTime,
-                ])
-                ->toArray(),
+                ]),
         );
 
         $this->command->newLine();

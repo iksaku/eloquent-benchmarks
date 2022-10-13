@@ -4,6 +4,7 @@ namespace App\Console\Commands\Benchmark;
 
 use App\Console\Commands\Benchmark\Concerns\CalculatesQueryPerformance;
 use App\Models\User;
+use App\Util\Benchmark\Benchmark;
 use Illuminate\Console\Command;
 
 class RelationshipLoadingCommand extends Command
@@ -14,9 +15,8 @@ class RelationshipLoadingCommand extends Command
 
     public function handle()
     {
-        $this->benchmark(
-            title: 'Load all Users and Posts',
-            callbacks: [
+        Benchmark::make('Load all Users and Posts', $this)
+            ->measure([
                 'Lazy-load Posts' => function () {
                     $users = User::query()->get();
 
@@ -29,12 +29,11 @@ class RelationshipLoadingCommand extends Command
                         ->with('posts')
                         ->get();
                 }
-            ]
-        );
+            ])
+            ->render();
 
-        $this->benchmark(
-            title: 'Load all Users, Posts and Comments',
-            callbacks: [
+        Benchmark::make('Load all Users, Posts and Comments', $this)
+            ->measure([
                 'Lazy-load Posts, then Comments' => function () {
                     $users = User::query()->get();
 
@@ -56,7 +55,7 @@ class RelationshipLoadingCommand extends Command
                         ->with('posts.comments')
                         ->get();
                 }
-            ]
-        );
+            ])
+            ->render();
     }
 }

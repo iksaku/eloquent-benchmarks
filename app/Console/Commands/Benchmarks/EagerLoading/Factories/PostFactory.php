@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Factories;
+namespace App\Console\Commands\Benchmarks\EagerLoading\Factories;
 
-use App\Models\Post;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\Post;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PostFactory extends Factory

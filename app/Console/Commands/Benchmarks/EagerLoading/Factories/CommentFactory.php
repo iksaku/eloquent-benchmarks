@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Factories;
+namespace App\Console\Commands\Benchmarks\EagerLoading\Factories;
 
-use App\Models\Comment;
-use App\Models\Post;
-use App\Models\User;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\Comment;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\Post;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CommentFactory extends Factory

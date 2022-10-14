@@ -3,62 +3,40 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class BenchmarkCommand extends Command
+abstract class BenchmarkCommand extends Command
 {
-    protected $signature = 'benchmark';
-
-    public function handle()
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         DB::setDefaultConnection('sqlite');
         config()->set('database.connections.sqlite.database', ':memory:');
-
-        $firstRun = true;
-
-        foreach (Artisan::all() as $signature => $command) {
-            if (! str_starts_with($signature, 'benchmark:')) {
-                continue;
-            }
-
-            if ($firstRun) {
-                $firstRun = false;
-            } else {
-                $this->newLine();
-                $this->line(str_repeat('-', 80));
-                $this->newLine();
-            }
-
-            $this->isolate($command);
-        }
-    }
-
-    protected function isolate(Command $command)
-    {
         DB::reconnect();
+
         DB::beginTransaction();
 
-        $name = Str::of($command::class)
+        $name = Str::of(static::class)
             ->classBasename()
-            ->replace('Command', '')
+            ->before('Command')
             ->headline();
 
         $this->comment("[Benchmark] Preparing '{$name}'...");
 
-        if (method_exists($command, 'migrate')) {
-            $command->migrate();
+        if (method_exists($this, 'migrate')) {
+            $this->migrate();
         }
 
-        if (method_exists($command, 'seed')) {
-            $command->seed();
+        if (method_exists($this, 'seed')) {
+            $this->seed();
         }
 
         $this->info("[Benchmark] Running '{$name}'...\n");
 
-        $this->call($command::class);
-
-        DB::rollBack();
+        return tap(parent::execute($input, $output), function () {
+            DB::rollBack();
+        });
     }
 }

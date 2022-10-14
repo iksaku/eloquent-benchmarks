@@ -1,31 +1,31 @@
 <?php
 
-namespace App\Console\Commands\Benchmarks;
+namespace App\Console\Commands\Benchmarks\EagerLoading;
 
-use App\Models\Comment;
-use App\Models\Post;
-use App\Models\User;
+use App\Console\Commands\BenchmarkCommand;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\Comment;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\Post;
+use App\Console\Commands\Benchmarks\EagerLoading\Models\User;
 use App\Util\Benchmark\Benchmark;
-use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RelationshipLoadingCommand extends Command
+class EagerLoadingBenchmark extends BenchmarkCommand
 {
     protected $signature = 'benchmark:eager-loading';
 
-    public function handle()
+    public function handle(): void
     {
-        Benchmark::make('Load all Users and Posts', $this)
+        Benchmark::make('Simple Relationship Loading', $this)
             ->measure([
-                'Lazy-load Posts' => function () {
+                'Lazy-load User\'s Posts' => function () {
                     $users = User::query()->get();
 
                     foreach ($users as $user) {
                         $user->load('posts');
                     }
                 },
-                'Eager-load Posts' => function () {
+                'Eager-load User\'s Posts' => function () {
                     User::query()
                         ->with('posts')
                         ->get();
@@ -33,9 +33,9 @@ class RelationshipLoadingCommand extends Command
             ])
             ->render();
 
-        Benchmark::make('Load all Users, Posts and Comments', $this)
+        Benchmark::make('Deep Relationship Loading', $this)
             ->measure([
-                'Lazy-load Posts, then Comments' => function () {
+                'Lazy-load User\'s Posts, then Comments' => function () {
                     $users = User::query()->get();
 
                     foreach ($users as $user) {
@@ -44,14 +44,14 @@ class RelationshipLoadingCommand extends Command
                         }
                     }
                 },
-                'Lazy-load Posts+Comments' => function () {
+                'Lazy-load User\'s Posts with Comments' => function () {
                     $users = User::query()->get();
 
                     foreach ($users as $user) {
                         $user->load('posts.comments');
                     }
                 },
-                'Eager-load Posts+Comments' => function () {
+                'Eager-load User\'s Posts with Comments' => function () {
                     User::query()
                         ->with('posts.comments')
                         ->get();
@@ -64,11 +64,10 @@ class RelationshipLoadingCommand extends Command
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+
             $table->timestamps();
         });
 

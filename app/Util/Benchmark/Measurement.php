@@ -14,10 +14,9 @@ class Measurement
      */
     public function __construct(public mixed $value, public MeasurementUnit $unit = MeasurementUnit::Raw)
     {
-        $this->normalizeValues();
     }
 
-    public function normalizeValues(): void
+    public function normalizeValue(): void
     {
         if ($this->unit->isTimeUnit()) {
             while ($this->value < 1 && $this->unit->hasSmallerUnit()) {
@@ -31,6 +30,8 @@ class Measurement
 
     public function render(): string
     {
+        $this->normalizeValue();
+
         return transform((string) $this->value, function (string $value) {
             if ($this->unit !== MeasurementUnit::Raw) {
                 $value .= $this->unit->value;

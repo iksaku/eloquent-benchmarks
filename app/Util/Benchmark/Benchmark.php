@@ -34,26 +34,27 @@ class Benchmark
         return $this;
     }
 
-    public function render(): void
+    protected function render(): void
     {
         $this->command->line($this->title);
 
         $this->command->table(
             headers: [
                 'Test',
-                'Query Count',
-                'Database Time',
-                'Code Time',
+                ...BenchmarkResult::getHeaders()
             ],
             rows: $this->benchmarks
                 ->map(fn (BenchmarkResult $result, int|string $name) => [
                     $name,
-                    $result->queryCount,
-                    $result->databaseTime,
-                    $result->codeTime,
+                    ...$result->toArray(),
                 ]),
         );
 
         $this->command->newLine();
+    }
+
+    public function __destruct()
+    {
+        $this->render();
     }
 }

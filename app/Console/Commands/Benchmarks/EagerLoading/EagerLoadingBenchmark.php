@@ -30,8 +30,7 @@ class EagerLoadingBenchmark extends BenchmarkCommand
                         ->with('posts')
                         ->get();
                 }
-            ])
-            ->render();
+            ]);
 
         Benchmark::make('Deep Relationship Loading', $this)
             ->measure([
@@ -56,8 +55,7 @@ class EagerLoadingBenchmark extends BenchmarkCommand
                         ->with('posts.comments')
                         ->get();
                 }
-            ])
-            ->render();
+            ]);
     }
 
     public function migrate(): void
@@ -67,7 +65,6 @@ class EagerLoadingBenchmark extends BenchmarkCommand
 
             $table->string('name');
             $table->string('email')->unique();
-
             $table->timestamps();
         });
 
@@ -77,7 +74,6 @@ class EagerLoadingBenchmark extends BenchmarkCommand
 
             $table->string('title');
             $table->text('body');
-
             $table->timestamps();
         });
 
@@ -87,7 +83,6 @@ class EagerLoadingBenchmark extends BenchmarkCommand
             $table->foreignId('post_id')->constrained();
 
             $table->text('body');
-
             $table->timestamps();
         });
     }

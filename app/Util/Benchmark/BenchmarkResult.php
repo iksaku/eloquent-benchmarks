@@ -3,12 +3,14 @@
 namespace App\Util\Benchmark;
 
 use Closure;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionProperty;
 
-class BenchmarkResult
+class BenchmarkResult implements Arrayable
 {
     /** @var Measurement<float> */
     public Measurement $codeTime;
@@ -19,6 +21,9 @@ class BenchmarkResult
     /** @var Measurement<int> */
     public Measurement $queryCount;
 
+    /** @var Measurement<int> */
+    public Measurement $hydratedModels;
+
     protected static ?Collection $categories = null;
 
     public static function make(Closure $callback): static
@@ -26,13 +31,14 @@ class BenchmarkResult
         return app(Pipeline::class)
             ->send($callback)
             ->through([
+                Process\CountHydratedModels::class,
                 Process\MeasureDatabaseConnection::class,
                 Process\MeasureCodeTime::class,
             ])
             ->thenReturn();
     }
 
-    protected static function getMeasurementCategories(): Collection
+    public static function getMeasurementCategories(): Collection
     {
         return static::$categories ??= collect((new ReflectionClass(static::class))->getProperties())
             ->filter(fn (ReflectionProperty $property) =>
@@ -52,12 +58,26 @@ class BenchmarkResult
                     ->pluck($category)
                     ->reduce(
                         fn (?Measurement $min, Measurement $current): Measurement =>
-                        is_null($min) || $current->value < $min->value
+                        is_null($min) || $current->value <= $min->value
                             ? $current
                             : $min
                     );
 
                 $best->hasBestValue = true;
             });
+    }
+
+    public static function getHeaders(): array
+    {
+        return static::getMeasurementCategories()
+            ->map(Str::headline(...))
+            ->toArray();
+    }
+
+    public function toArray(): array
+    {
+        return static::getMeasurementCategories()
+            ->map(fn (string $category) => $this->{$category})
+            ->toArray();
     }
 }

@@ -58,7 +58,7 @@ class EagerLoadingBenchmark extends BenchmarkCommand
             ]);
     }
 
-    public function migrate(): void
+    protected function migrate(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -87,7 +87,7 @@ class EagerLoadingBenchmark extends BenchmarkCommand
         });
     }
 
-    public function seed(): void
+    protected function seed(): void
     {
         User::factory()
             ->count(100)

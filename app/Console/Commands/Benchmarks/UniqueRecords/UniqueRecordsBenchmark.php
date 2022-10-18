@@ -46,7 +46,7 @@ class UniqueRecordsBenchmark extends BenchmarkCommand
             ]);
     }
 
-    public function migrate(): void
+    protected function migrate(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -65,7 +65,7 @@ class UniqueRecordsBenchmark extends BenchmarkCommand
         });
     }
 
-    public function seed(): void
+    protected function seed(): void
     {
         User::factory()
             ->has(

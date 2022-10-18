@@ -9,9 +9,9 @@ use Illuminate\Support\Collection;
 class Benchmark
 {
     /**
-     * @var Collection<int|string, BenchmarkResult>
+     * @var BenchmarkResultCollection
      */
-    protected Collection $benchmarks;
+    protected BenchmarkResultCollection $benchmarks;
 
     protected function __construct(public string $title, protected Command $command)
     {
@@ -27,15 +27,17 @@ class Benchmark
      */
     public function measure(array $callbacks): static
     {
-        $this->benchmarks = Collection::make($callbacks)
-            ->map(BenchmarkResult::make(...))
-            ->tap(BenchmarkResult::highlightBestMeasurements(...));
+        $this->benchmarks = BenchmarkResultCollection::make($callbacks);
 
         return $this;
     }
 
     protected function render(): void
     {
+        if (! isset($this->benchmarks)) {
+            return;
+        }
+
         $this->command->line($this->title);
 
         $this->command->table(
@@ -43,11 +45,7 @@ class Benchmark
                 'Test',
                 ...BenchmarkResult::getHeaders()
             ],
-            rows: $this->benchmarks
-                ->map(fn (BenchmarkResult $result, int|string $name) => [
-                    $name,
-                    ...$result->toArray(),
-                ]),
+            rows: $this->benchmarks->compileResults(),
         );
 
         $this->command->newLine();

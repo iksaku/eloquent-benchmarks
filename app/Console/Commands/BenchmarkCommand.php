@@ -25,13 +25,8 @@ abstract class BenchmarkCommand extends Command
 
         $this->comment("[Benchmark] Preparing '{$name}'...");
 
-        if (method_exists($this, 'migrate')) {
-            $this->migrate();
-        }
-
-        if (method_exists($this, 'seed')) {
-            $this->seed();
-        }
+        $this->migrate();
+        $this->seed();
 
         $this->info("[Benchmark] Running '{$name}'...\n");
 
@@ -39,4 +34,10 @@ abstract class BenchmarkCommand extends Command
             DB::rollBack();
         });
     }
+
+    abstract protected function handle(): void;
+
+    abstract protected function migrate(): void;
+
+    abstract protected function seed(): void;
 }

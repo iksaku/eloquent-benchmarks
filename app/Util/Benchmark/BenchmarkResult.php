@@ -49,24 +49,6 @@ class BenchmarkResult implements Arrayable
             ->map(fn (ReflectionProperty $property) => $property->getName());
     }
 
-    public static function highlightBestMeasurements(Collection $results): void
-    {
-        static::getMeasurementCategories()
-            ->each(function (string $category) use ($results) {
-                /** @var Measurement $best */
-                $best = $results
-                    ->pluck($category)
-                    ->reduce(
-                        fn (?Measurement $min, Measurement $current): Measurement =>
-                        is_null($min) || $current->value <= $min->value
-                            ? $current
-                            : $min
-                    );
-
-                $best->hasBestValue = true;
-            });
-    }
-
     public static function getHeaders(): array
     {
         return static::getMeasurementCategories()
@@ -77,7 +59,7 @@ class BenchmarkResult implements Arrayable
     public function toArray(): array
     {
         return static::getMeasurementCategories()
-            ->map(fn (string $category) => $this->{$category})
+            ->map(fn (string $category) => (string) $this->{$category})
             ->toArray();
     }
 }

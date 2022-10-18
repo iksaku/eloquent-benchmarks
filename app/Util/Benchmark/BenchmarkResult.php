@@ -24,6 +24,9 @@ class BenchmarkResult implements Arrayable
     /** @var Measurement<int> */
     public Measurement $hydratedModels;
 
+    /** @var Measurement<float> */
+    public Measurement $peakMemoryUsage;
+
     protected static ?Collection $categories = null;
 
     public static function make(Closure $callback): static
@@ -34,6 +37,8 @@ class BenchmarkResult implements Arrayable
                 Process\CountHydratedModels::class,
                 Process\MeasureDatabaseConnection::class,
                 Process\MeasureCodeTime::class,
+                Process\TrackPeakMemoryUsage::class,
+                fn (Closure $callback) => tap(new BenchmarkResult(), fn () => $callback()),
             ])
             ->thenReturn();
     }

@@ -7,16 +7,17 @@ use App\Util\Benchmark\Measurement;
 use App\Util\Benchmark\MeasurementUnit;
 use Closure;
 
-class MeasureCodeTime
+class TrackPeakMemoryUsage
 {
     public function handle(Closure $callback, Closure $next): BenchmarkResult
     {
-        $start = microtime(true);
+        memory_reset_peak_usage();
+        $start = memory_get_usage();
 
         return tap($next($callback), function (BenchmarkResult $result) use ($start) {
-            $end = microtime(true);
+            $end = memory_get_peak_usage();
 
-            $result->codeTime = new Measurement($end - $start, unit: MeasurementUnit::Seconds);
+            $result->peakMemoryUsage = new Measurement($end - $start, unit: MeasurementUnit::Bytes);
         });
     }
 }

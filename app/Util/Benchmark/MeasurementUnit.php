@@ -6,34 +6,72 @@ enum MeasurementUnit: string
 {
     case Raw = '';
 
-    case Seconds = 's';
-    case Milliseconds = 'ms';
     case Microseconds = 'μs';
+    case Milliseconds = 'ms';
+    case Seconds = 's';
+
+    case Bytes = 'B';
+    case Kibibytes = 'KiB';
+    case Mebibytes = 'MiB';
 
     public function isTimeUnit(): bool
     {
         return in_array($this, [
-            self::Seconds,
-            self::Milliseconds,
             self::Microseconds,
+            self::Milliseconds,
+            self::Seconds,
         ]);
     }
 
-    public function nextSmallerUnit(): ?MeasurementUnit
+    public function isMemoryUnit(): bool
     {
-        return match (true) {
-            $this->isTimeUnit() => match ($this) {
-                self::Seconds => self::Milliseconds,
-                self::Milliseconds => self::Microseconds,
-                default => null,
-            },
-
-            default => null,
-        };
+        return in_array($this, [
+            self::Bytes,
+            self::Kibibytes,
+            self::Mebibytes,
+        ]);
     }
 
-    public function hasSmallerUnit(): bool
+    public static function normalize(mixed &$value, MeasurementUnit &$unit): void
     {
-        return ! is_null($this->nextSmallerUnit());
+        $convert = function () use (&$value, &$unit) {
+            return match ($unit) {
+                MeasurementUnit::Raw => null,
+
+                MeasurementUnit::Microseconds => match (true) {
+                    $value >= 1000 => [$value / 1000, MeasurementUnit::Milliseconds],
+                    default => null,
+                },
+                MeasurementUnit::Milliseconds => match (true) {
+                    $value >= 1000 => [$value / 1000, MeasurementUnit::Seconds],
+                    $value < 1 => [$value * 1000, MeasurementUnit::Microseconds],
+                    default => null,
+                },
+                MeasurementUnit::Seconds => match (true) {
+                    $value < 1 => [$value * 1000, MeasurementUnit::Milliseconds],
+                    default => null,
+                },
+
+                MeasurementUnit::Bytes => match (true) {
+                    $value >= 1024 => [$value / 1024, MeasurementUnit::Kibibytes],
+                    default => null,
+                },
+                MeasurementUnit::Kibibytes => match (true) {
+                    $value >= 1024 => [$value / 1024, MeasurementUnit::Mebibytes],
+                    $value < 1 => [$value * 1024, MeasurementUnit::Bytes],
+                    default => null,
+                },
+                MeasurementUnit::Mebibytes => match (true) {
+                    $value < 1 => [$value * 1024, MeasurementUnit::Kibibytes],
+                    default => null,
+                },
+            };
+        };
+
+        while (! is_null($next = $convert())) {
+            [$value, $unit] = $next;
+        }
+
+        $value = round($value, precision: 2);
     }
 }

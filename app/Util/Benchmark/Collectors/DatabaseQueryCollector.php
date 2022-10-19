@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Util\Benchmark\Process;
+namespace App\Util\Benchmark\Collectors;
 
 use App\Util\Benchmark\BenchmarkResult;
 use App\Util\Benchmark\Measurement;
@@ -10,7 +10,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 
-class MeasureDatabaseConnection
+class DatabaseQueryCollector
 {
     public function handle(Closure $callback, Closure $next): BenchmarkResult
     {

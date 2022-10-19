@@ -34,10 +34,10 @@ class BenchmarkResult implements Arrayable
         return app(Pipeline::class)
             ->send($callback)
             ->through([
-                Process\CountHydratedModels::class,
-                Process\MeasureDatabaseConnection::class,
-                Process\MeasureCodeTime::class,
-                Process\TrackPeakMemoryUsage::class,
+                Collectors\HydratedModelsCollector::class,
+                Collectors\DatabaseQueryCollector::class,
+                Collectors\CodeTimeCollector::class,
+                Collectors\PeakMemoryCollector::class,
             ])
             ->thenReturn();
     }

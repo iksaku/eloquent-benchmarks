@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Util\Benchmark\Process;
+namespace App\Util\Benchmark\Collectors;
 
 use App\Util\Benchmark\BenchmarkResult;
 use App\Util\Benchmark\Measurement;
 use App\Util\Benchmark\MeasurementUnit;
 use Closure;
 
-class MeasureCodeTime
+class CodeTimeCollector
 {
     public function handle(Closure $callback, Closure $next): BenchmarkResult
     {

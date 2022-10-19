@@ -9,12 +9,14 @@ use Closure;
 
 class TrackPeakMemoryUsage
 {
-    public function handle(Closure $callback, Closure $next): BenchmarkResult
+    public function handle(Closure $callback): BenchmarkResult
     {
-        memory_reset_peak_usage();
-        $start = memory_get_usage();
+        return tap(new BenchmarkResult(), function (BenchmarkResult $result) use ($callback) {
+            memory_reset_peak_usage();
+            $start = memory_get_usage();
 
-        return tap($next($callback), function (BenchmarkResult $result) use ($start) {
+            $callback();
+
             $end = memory_get_peak_usage();
 
             $result->peakMemoryUsage = new Measurement($end - $start, unit: MeasurementUnit::Bytes);

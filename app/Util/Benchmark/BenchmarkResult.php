@@ -38,7 +38,6 @@ class BenchmarkResult implements Arrayable
                 Process\MeasureDatabaseConnection::class,
                 Process\MeasureCodeTime::class,
                 Process\TrackPeakMemoryUsage::class,
-                fn (Closure $callback) => tap(new BenchmarkResult(), fn () => $callback()),
             ])
             ->thenReturn();
     }

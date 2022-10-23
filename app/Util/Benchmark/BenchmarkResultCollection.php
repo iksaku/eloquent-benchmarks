@@ -25,12 +25,17 @@ class BenchmarkResultCollection extends Collection
                 /** @var Measurement $best */
                 $best = $this
                     ->pluck($category)
-                    ->reduce(
-                        fn (?Measurement $min, Measurement $current): Measurement =>
-                        is_null($min) || $current->value <= $min->value
-                            ? $current
-                            : $min
-                    );
+                    ->reduce(function (?Measurement $min, Measurement $current): Measurement {
+                        if (is_null($min) || $current->value < $min->value) {
+                            return $current;
+                        }
+
+                        if ($current->value === $min->value) {
+                            $current->hasBestValue = &$min->hasBestValue;
+                        }
+
+                        return $min;
+                    });
 
                 $best->hasBestValue = true;
             });

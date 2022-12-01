@@ -31,7 +31,7 @@ class CountUsingConditionalsBenchmark extends BenchmarkCommand
                         });
                 },
                 'Apply count conditions with multiple queries ' => function () {
-                    [
+                    $counter = [
                         TicketStatus::Requested->value => Ticket::query()
                             ->where('status', TicketStatus::Requested->value)
                             ->count(),
@@ -44,7 +44,7 @@ class CountUsingConditionalsBenchmark extends BenchmarkCommand
                     ];
                 },
                 'Mimic count conditions using row grouping' => function () {
-                    Ticket::query()
+                    $counter = Ticket::query()
                         ->toBase()
                         ->selectRaw('status, count(*) as count')
                         ->groupBy('status')
@@ -52,7 +52,7 @@ class CountUsingConditionalsBenchmark extends BenchmarkCommand
                         ->toArray();
                 },
                 'Apply count conditions using Case statement' => function () {
-                    (array) Ticket::query()
+                    $counter = (array) Ticket::query()
                         ->toBase()
                         ->selectRaw("count(case when status = 'requested' then 1 end) as requested")
                         ->selectRaw("count(case when status = 'planned' then 1 end) as planned")
@@ -60,7 +60,7 @@ class CountUsingConditionalsBenchmark extends BenchmarkCommand
                         ->first();
                 },
                 'Apply count conditions using Filter statement' => function () {
-                    (array) Ticket::query()
+                    $counter = (array) Ticket::query()
                         ->toBase()
                         ->selectRaw("count(*) filter (where status = 'requested') as requested")
                         ->selectRaw("count(*) filter (where status = 'planned') as planned")

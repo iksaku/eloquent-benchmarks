@@ -22,13 +22,21 @@ class EagerLoadingBenchmark extends BenchmarkCommand
                     $users = User::query()->get();
 
                     foreach ($users as $user) {
-                        $user->load('posts');
+                        foreach ($user->posts as $post) {
+                            // ...
+                        }
                     }
                 },
                 'Eager-load User\'s Posts' => function () {
-                    User::query()
-                        ->with('posts')
+                    $users = User::query()
+                        ->with(relations: 'posts')
                         ->get();
+
+                    foreach ($users as $user) {
+                        foreach ($user->posts as $post) {
+                            // ...
+                        }
+                    }
                 }
             ]);
 
@@ -39,7 +47,9 @@ class EagerLoadingBenchmark extends BenchmarkCommand
 
                     foreach ($users as $user) {
                         foreach ($user->posts as $post) {
-                            $post->load('comments');
+                            foreach ($post->comments as $comment) {
+                                // ...
+                            }
                         }
                     }
                 },
@@ -48,12 +58,26 @@ class EagerLoadingBenchmark extends BenchmarkCommand
 
                     foreach ($users as $user) {
                         $user->load('posts.comments');
+
+                        foreach ($user->posts as $post) {
+                            foreach ($post->comments as $comment) {
+                                // ...
+                            }
+                        }
                     }
                 },
                 'Eager-load User\'s Posts with Comments' => function () {
-                    User::query()
+                    $users = User::query()
                         ->with('posts.comments')
                         ->get();
+
+                    foreach ($users as $user) {
+                        foreach ($user->posts as $post) {
+                            foreach ($post->comments as $comment) {
+                                // ...
+                            }
+                        }
+                    }
                 }
             ]);
     }

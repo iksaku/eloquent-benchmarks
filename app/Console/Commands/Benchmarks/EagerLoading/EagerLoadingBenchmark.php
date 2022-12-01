@@ -53,19 +53,6 @@ class EagerLoadingBenchmark extends BenchmarkCommand
                         }
                     }
                 },
-                'Lazy-load User\'s Posts with Comments' => function () {
-                    $users = User::query()->get();
-
-                    foreach ($users as $user) {
-                        $user->load('posts.comments');
-
-                        foreach ($user->posts as $post) {
-                            foreach ($post->comments as $comment) {
-                                // ...
-                            }
-                        }
-                    }
-                },
                 'Eager-load User\'s Posts with Comments' => function () {
                     $users = User::query()
                         ->with('posts.comments')

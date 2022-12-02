@@ -24,7 +24,7 @@ class UniqueRecordsBenchmark extends BenchmarkCommand
 
                     Trip::query()
                         ->where('user_id', $user_id)
-                        ->get()
+                        ->get('country')
                         ->each(function (Trip $trip) use (&$countries) {
                             if (! in_array($trip->country, $countries)) {
                                 $countries[] = $trip->country;
@@ -32,13 +32,13 @@ class UniqueRecordsBenchmark extends BenchmarkCommand
                         });
                 },
                 'Filter using collections' => function () use ($user_id) {
-                    Trip::query()
+                    $countries = Trip::query()
                         ->where('user_id', $user_id)
-                        ->get()
+                        ->get('country')
                         ->unique('country');
                 },
                 'Filter using database' => function () use ($user_id) {
-                    Trip::query()
+                    $countries = Trip::query()
                         ->distinct('country')
                         ->where('user_id', $user_id)
                         ->pluck('country');

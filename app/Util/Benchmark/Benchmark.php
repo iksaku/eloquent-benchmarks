@@ -2,9 +2,8 @@
 
 namespace App\Util\Benchmark;
 
+use App\Console\Commands\BenchmarkCommand;
 use Closure;
-use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 
 class Benchmark
 {
@@ -13,11 +12,11 @@ class Benchmark
      */
     protected BenchmarkResultCollection $benchmarks;
 
-    protected function __construct(public string $title, protected Command $command)
+    protected function __construct(public string $title, protected BenchmarkCommand $command)
     {
     }
 
-    public static function make(string $title, Command $command): static
+    public static function make(string $title, BenchmarkCommand $command): static
     {
         return new static($title, $command);
     }

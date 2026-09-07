@@ -31,7 +31,7 @@ class CumulativeSumBenchmark extends BenchmarkCommand
                     Transaction::query()
                         ->select('transactions.*')
                         ->selectRaw('sum(t2.amount) as running_balance')
-                        ->join('transactions as t2', 'transactions.id', '>=', 't2.id')
+                        ->join('transactions as t2', 'transactions.id', '<=', 't2.id')
                         ->groupBy('transactions.id')
                         ->get();
                 },
